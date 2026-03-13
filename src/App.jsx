@@ -1,16 +1,17 @@
 import "./App.css";
 import { useState } from "react";
+// Assure-toi que ton logo est bien dans src/assets/logo-fox.png
+import logoFox from "./assets/logo-fox.png"; 
 
 function App() {
-  const [trip, setTrip] = useState(""); // Texte saisi par l'utilisateur
-  const [itinerary, setItinerary] = useState(null); // Stockage du résultat de l'IA
-  const [loading, setLoading] = useState(false); // État de chargement
+  const [trip, setTrip] = useState(""); 
+  const [itinerary, setItinerary] = useState(null); 
+  const [loading, setLoading] = useState(false); 
 
-  // Fonction pour appeler ton serveur Node.js
   const generateTrip = async () => {
     if (!trip) return;
     setLoading(true);
-    setItinerary(null); // On vide le précédent résultat
+    setItinerary(null);
 
     try {
       const response = await fetch("http://localhost:3001/generate", {
@@ -26,7 +27,7 @@ function App() {
       }
 
       const data = await response.json();
-      setItinerary(data); // On met à jour l'interface avec les données de l'IA
+      setItinerary(data); 
     } catch (error) {
       console.error("Erreur lors de la génération :", error);
       alert("Erreur : Assure-toi que ton serveur backend est lancé sur le port 3001.");
@@ -36,41 +37,30 @@ function App() {
   };
 
   return (
-    <div>
-      {/* TOPBAR */}
-      <div className="topbar">TRIPia76@outlook.fr</div>
+    <div className="App">
+      {/* ── 1. LA PETITE BANDE VERTE TOUT EN HAUT ── */}
+      <div className="topbar">tripia26@outlook.fr</div>
 
-      {/* HEADER */}
+      {/* ── 2. LE HEADER (FOND BLANC, ÉCRITURES VERTES) ── */}
       <header className="header">
         <div className="logo">
-          <svg className="logo-icon" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="30" cy="38" rx="22" ry="13" fill="#e8e830" opacity="0.3" />
-            <circle cx="30" cy="26" r="18" fill="#f5f5dc" stroke="#b4b100" strokeWidth="2" />
-            <ellipse cx="30" cy="26" rx="10" ry="18" stroke="#b4b100" strokeWidth="1.5" fill="none" />
-            <line x1="12" y1="26" x2="48" y2="26" stroke="#b4b100" strokeWidth="1.5" />
-            <line x1="30" y1="8" x2="30" y2="44" stroke="#b4b100" strokeWidth="1.5" />
-            <circle cx="30" cy="26" r="3" fill="#b4b100" />
-            <ellipse cx="14" cy="40" rx="5" ry="3" fill="#b4b100" transform="rotate(-20 14 40)" />
-            <ellipse cx="46" cy="40" rx="5" ry="3" fill="#b4b100" transform="rotate(20 46 40)" />
-            <ellipse cx="10" cy="32" rx="5" ry="3" fill="#b4b100" transform="rotate(-30 10 32)" />
-            <ellipse cx="50" cy="32" rx="5" ry="3" fill="#b4b100" transform="rotate(30 50 32)" />
-            <ellipse cx="30" cy="50" rx="5" ry="2.5" fill="#b4b100" />
-          </svg>
-
+          <img src={logoFox} alt="Logo Tripia" className="logo-icon" />
           <div className="logo-text-wrap">
-            <div className="logo-name">TRIP<span>ia</span></div>
+            {/* Le span permet de mettre "IA" en noir via le CSS */}
+            <div className="logo-name">TRIP<span>IA</span></div>
             <div className="logo-tagline">Votre voyage, pensé selon vos envies.</div>
           </div>
         </div>
 
         <nav className="nav">
-          <a href="#">Album</a>
-          <a href="#">Planning</a>
-          <a href="#">Réservation</a>
+          <a href="#">ALBUM</a>
+          <a href="#">PLANNING</a>
+          <a href="#">RÉSERVATION</a>
+          <a href="#">SUGGESTION</a>
         </nav>
       </header>
 
-      {/* HERO */}
+      {/* ── 3. HERO (GRILLE + RECHERCHE) ── */}
       <section className="hero">
         <div className="hero-grid">
           {[...Array(15)].map((_, i) => (
@@ -78,12 +68,10 @@ function App() {
           ))}
         </div>
 
-        <div className="hero-overlay"></div>
-
         <div className="search-wrap">
           <input
             type="text"
-            placeholder="Écrivez votre voyage (ex: 3 jours à Rome)..."
+            placeholder="Écrivez votre voyage..."
             value={trip}
             onChange={(e) => setTrip(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && generateTrip()}
@@ -95,7 +83,7 @@ function App() {
         </div>
       </section>
 
-      {/* RESULT */}
+      {/* ── 4. RÉSULTATS DE L'IA ── */}
       <section className="result">
         {loading && (
           <div className="loading-state">
@@ -114,7 +102,6 @@ function App() {
             <div className="itinerary">
               {itinerary.days.map((item, index) => (
                 <div className="day-block" key={index}>
-                  {/* 1. Affichage de la photo Unsplash */}
                   {item.image_url && (
                     <img
                       src={item.image_url}
@@ -122,18 +109,12 @@ function App() {
                       className="day-image"
                     />
                   )}
-
-                  {/* 2. Titre du jour */}
                   <h3>Jour {item.day} — {item.title}</h3>
-
-                  {/* 3. Badge pour le budget estimé */}
                   {item.estimated_budget && (
                     <div className="budget-badge">
                       💰 Budget estimé : {item.estimated_budget}
                     </div>
                   )}
-
-                  {/* 4. Liste des activités */}
                   <ul>
                     {item.activities.map((activity, i) => (
                       <li key={i}>{activity}</li>

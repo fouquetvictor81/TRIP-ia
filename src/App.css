@@ -1,278 +1,180 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,700&display=swap');
 
 :root {
-  --gold: #b4b100;
-  --gold-dark: #8a8800;
-  --olive: #c7c76d;
-  --bg: #c7c76d;
-  --text-dark: #1c1c00;
+    --brand-green: #c7c76d; /* Le vert olive de ton modèle */
+    --text-dark: #1c1c00;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
 
 body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--bg);
-  color: var(--text-dark);
-  min-height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    background: #fff;
+    color: var(--text-dark);
+    min-height: 100vh;
 }
 
-/* ── TOPBAR ── */
+/* ── LA PETITE BANDE VERTE TOUT EN HAUT ── */
 .topbar {
-  background: #fff;
-  text-align: right;
-  padding: 3px 40px;
-  font-size: 11px;
-  color: #888;
-  border-bottom: 1px solid #f0f0f0;
+    background: var(--brand-green);
+    text-align: right;
+    padding: 6px 40px;
+    font-size: 13px;
+    color: #000;
+    font-weight: bold;
 }
 
-/* ── HEADER ── */
+/* ── LE HEADER (FOND BLANC) ── */
 .header {
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 40px 12px 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    background: #fff; /* Fond blanc pour le reste de la bannière */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 40px;
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid #f0f0f0; /* Un trait léger pour séparer de la photo */
 }
 
+/* ── LOGO & TEXTE EN VERT ── */
 .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
 }
 
 .logo-icon {
-  width: 54px;
-  height: 54px;
-  flex-shrink: 0;
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+    /* mix-blend-mode: multiply; -> Utilise ceci si ton logo a un cadre blanc */
 }
 
 .logo-text-wrap {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
 }
 
 .logo-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 38px;
-  letter-spacing: 3px;
-  color: var(--gold);
-  line-height: 1;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 45px;
+    letter-spacing: 2px;
+    color: var(--brand-green); /* "TRIP" repasse en vert */
+    line-height: 0.9;
 }
 
 .logo-name span {
-  color: #2a2a2a;
+    color: #333; /* "IA" reste en noir foncé */
+    text-transform: uppercase;
 }
 
 .logo-tagline {
-  font-size: 10.5px;
-  color: #888;
-  font-style: italic;
-  margin-top: 2px;
-  letter-spacing: 0.3px;
-}
-.logo-name span{
-  color: green;
+    font-size: 13px;
+    color: var(--brand-green); /* Slogan repasse en vert */
+    font-style: italic;
+    margin-top: 5px;
+    font-weight: 600;
 }
 
+/* ── NAVIGATION (ÉCRITURES EN VERT) ── */
 .nav {
-  display: flex;
-  gap: 36px;
-  align-items: center;
+    display: flex;
+    gap: 30px;
+    align-items: center;
 }
 
 .nav a {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 17px;
-  letter-spacing: 2.5px;
-  color: var(--gold);
-  text-decoration: none;
-  transition: color 0.2s;
-  cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1.5px;
+    color: var(--brand-green); /* Liens repassent en vert */
+    text-decoration: none;
+    transition: opacity 0.2s;
 }
-.logo-name span{
-  color: green;
-  text-transform: none;
-}
-.nav a:hover { color: var(--gold-dark); }
 
-/* ── HERO ── */
+.nav a:hover { 
+    opacity: 0.7; 
+}
+
+/* ── HERO & GRILLE D'IMAGES ── */
 .hero {
-  position: relative;
-  width: 100%;
-  height: calc(100vh - 80px);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .hero-grid {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 3px;
-  z-index: 0;
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+    z-index: 0;
 }
 
 .hero-grid div {
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.72) saturate(0.85);
+    background-size: cover;
+    background-position: center;
 }
 
-.p1  { background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400'); }
-.p2  { background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'); }
-.p3  { background-image: url('https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=400'); }
-.p4  { background-image: url('https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400'); }
-.p5  { background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'); }
-.p6  { background-image: url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400'); }
-.p7  { background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400'); }
-.p8  { background-image: url('https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=400'); }
-.p9  { background-image: url('https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=400'); }
-.p10 { background-image: url('https://images.unsplash.com/photo-1534430480872-3498386e7856?w=400'); }
-.p11 { background-image: url('https://images.unsplash.com/photo-1526397751294-331021109fbd?w=400'); }
-.p12 { background-image: url('https://images.unsplash.com/photo-1500916434205-0c77489c6cf7?w=400'); }
-.p13 { background-image: url('https://images.unsplash.com/photo-1549693578-d683be217e58?w=400'); }
-.p14 { background-image: url('https://images.unsplash.com/photo-1468657988500-aca2be09f4c6?w=400'); }
-.p15 { background-image: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400'); }
+/* ── Tes images locales dans le dossier assets ── */
+.p1  { background-image: url('assets/photo1.jpg'); }
+.p2  { background-image: url('assets/photo2.jpg'); }
+.p3  { background-image: url('assets/photo3.jpg'); }
+.p4  { background-image: url('assets/photo4.jpg'); }
+.p5  { background-image: url('assets/photo5.jpg'); }
+.p6  { background-image: url('assets/photo6.jpg'); }
+.p7  { background-image: url('assets/photo7.jpg'); }
+.p8  { background-image: url('assets/photo8.jpg'); }
+.p9  { background-image: url('assets/photo9.jpg'); }
+.p10 { background-image: url('assets/photo10.jpg'); }
+.p11 { background-image: url('assets/photo11.jpg'); }
+.p12 { background-image: url('assets/photo12.jpg'); }
+.p13 { background-image: url('assets/photo13.jpg'); }
+.p14 { background-image: url('assets/photo14.jpg'); }
+.p15 { background-image: url('assets/photo15.jpg'); }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(20,20,0,0.22);
-  z-index: 1;
-}
-
-/* ── SEARCH BAR ── */
+/* ── BARRE DE RECHERCHE ── */
 .search-wrap {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
 }
 
 .search-wrap input {
-  width: 660px;
-  max-width: 88vw;
-  padding: 17px 56px 17px 32px;
-  border-radius: 50px;
-  border: 2.5px solid #111;
-  font-size: 21px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  background: rgba(255,255,255,0.94);
-  color: #222;
-  outline: none;
-  box-shadow: 0 6px 28px rgba(0,0,0,0.28);
-  transition: border-color 0.2s, box-shadow 0.2s;
+    width: 720px;
+    max-width: 90vw;
+    padding: 22px 35px;
+    border-radius: 60px;
+    border: 3px solid #000;
+    font-size: 26px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: bold;
+    background: #fff;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    outline: none;
 }
 
-.search-wrap input::placeholder { color: #444; font-weight: 600; }
-.search-wrap input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 6px 32px rgba(180,177,0,0.4);
-}
-
-.search-icon {
-  position: absolute;
-  right: 20px;
-  font-size: 20px;
-  color: #333;
-  pointer-events: none;
-}
-
-/* ── RESULT ── */
-.result {
-  padding: 48px 70px 80px;
-  
-}
-
-.prompt {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  border: 2.5px solid #9a9a20;
-  border-radius: 28px;
-  padding: 16px 24px;
-  width: 660px;
-  max-width: 95%;
-  margin-bottom: 40px;
-  background: #d2d260;
-  color: #1a1a00;
-  font-size: 12.5px;
-  line-height: 1.6;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  font-weight: 600;
-}
-
-.prompt-q {
-  font-size: 18px;
-  flex-shrink: 0;
-  margin-top: 1px;
-  color: #5a5a00;
-}
-
-.prompt-mic {
-  font-size: 18px;
-  flex-shrink: 0;
-  margin-top: 1px;
-  margin-left: auto;
-  padding-left: 12px;
-  color: #5a5a00;
-}
-
-/* ── ITINERARY ── */
-.day-block { margin-bottom: 6px; }
-
-.day-block h3 {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  color: #1a1a00;
-  margin-top: 28px;
-  margin-bottom: 8px;
-}
-
-.day-block ul {
-  list-style: disc;
-  margin-left: 26px;
-}
-
-.day-block ul li {
-  font-size: 14px;
-  font-weight: 400;
-  color: #2a2a00;
-  line-height: 1.75;
-}
-.day-block li {
-  margin-bottom: 15px;
-  line-height: 1.6; /* Plus d'espace entre les lignes pour la lisibilité */
-  color: #444;
-  list-style-type: none;
-  border-left: 3px solid var(--gold); /* Un petit rappel de ta couleur gold */
-  padding-left: 15px;
-}
 .search-button {
-
-  position: absolute;
-  right: 12px;
-
-  border: none;
-  background: transparent;
-
-  font-size: 22px;
-  cursor: pointer;
-
-  padding: 6px;
-}
-
-.search-button:hover{
-  transform: scale(1.1);
+    position: absolute;
+    right: 25px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: #333;
 }
