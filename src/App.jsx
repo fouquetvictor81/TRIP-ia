@@ -73,8 +73,9 @@ function App() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-grid">
-            {/* On garde tes divs p1 à p15 pour le style CSS */}
-            {[...Array(15)].map((_, i) => <div key={i} className={`p${i+1}`}></div>)}
+          {[...Array(15)].map((_, i) => (
+            <div key={i} className={`p${i + 1}`}></div>
+          ))}
         </div>
 
         <div className="hero-overlay"></div>
@@ -85,7 +86,7 @@ function App() {
             placeholder="Écrivez votre voyage (ex: 3 jours à Rome)..."
             value={trip}
             onChange={(e) => setTrip(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && generateTrip()} // Permet de valider avec Entrée
+            onKeyDown={(e) => e.key === "Enter" && generateTrip()}
           />
 
           <button className="search-button" onClick={generateTrip} disabled={loading}>
@@ -96,8 +97,11 @@ function App() {
 
       {/* RESULT */}
       <section className="result">
-        {/* On affiche cette partie seulement si on a un itinéraire ou si on charge */}
-        {loading && <div className="loading-state">L'intelligence artificielle prépare votre itinéraire...</div>}
+        {loading && (
+          <div className="loading-state">
+            L'intelligence artificielle prépare votre itinéraire...
+          </div>
+        )}
 
         {itinerary && (
           <>
@@ -110,7 +114,26 @@ function App() {
             <div className="itinerary">
               {itinerary.days.map((item, index) => (
                 <div className="day-block" key={index}>
-                  <h3>Jour {item.day}</h3>
+                  {/* 1. Affichage de la photo Unsplash */}
+                  {item.image_url && (
+                    <img
+                      src={item.image_url}
+                      alt={item.title}
+                      className="day-image"
+                    />
+                  )}
+
+                  {/* 2. Titre du jour */}
+                  <h3>Jour {item.day} — {item.title}</h3>
+
+                  {/* 3. Badge pour le budget estimé */}
+                  {item.estimated_budget && (
+                    <div className="budget-badge">
+                      💰 Budget estimé : {item.estimated_budget}
+                    </div>
+                  )}
+
+                  {/* 4. Liste des activités */}
                   <ul>
                     {item.activities.map((activity, i) => (
                       <li key={i}>{activity}</li>

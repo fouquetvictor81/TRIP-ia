@@ -251,6 +251,14 @@ body {
   color: #2a2a00;
   line-height: 1.75;
 }
+.day-block li {
+  margin-bottom: 15px;
+  line-height: 1.6; /* Plus d'espace entre les lignes pour la lisibilité */
+  color: #444;
+  list-style-type: none;
+  border-left: 3px solid var(--gold); /* Un petit rappel de ta couleur gold */
+  padding-left: 15px;
+}
 .search-button {
 
   position: absolute;
