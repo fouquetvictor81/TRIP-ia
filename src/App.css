@@ -1,114 +1,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,700&display=swap');
 
 :root {
-    --brand-green: #c7c76d; /* Le vert olive de ton modèle */
-    --text-dark: #1c1c00;
+    --brand-olive: #c7c76d;
+    --text-black: #1a1a00;
 }
 
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Nunito', sans-serif;
     background: #fff;
-    color: var(--text-dark);
-    min-height: 100vh;
+    color: var(--text-black);
 }
 
-/* ── LA PETITE BANDE VERTE TOUT EN HAUT ── */
+/* ── TOPBAR : MAIL EN BLANC ── */
 .topbar {
-    background: var(--brand-green);
+    background: var(--brand-olive);
     text-align: right;
-    padding: 6px 40px;
+    padding: 8px 40px;
+}
+
+.mail-text {
     font-size: 13px;
-    color: #000;
+    color: #ffffff !important;
     font-weight: bold;
 }
 
-/* ── LE HEADER (FOND BLANC) ── */
+/* ── HEADER ── */
 .header {
-    background: #fff; /* Fond blanc pour le reste de la bannière */
+    background: #fff;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 40px;
+    padding: 0 40px;
+    height: 90px;
+    border-bottom: 1px solid #f2f2f2;
     position: relative;
     z-index: 10;
-    border-bottom: 1px solid #f0f0f0; /* Un trait léger pour séparer de la photo */
 }
 
-/* ── LOGO & TEXTE EN VERT ── */
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    text-decoration: none;
-}
+.logo-section { display: flex; align-items: center; gap: 15px; }
+.logo-icon { width: 60px; height: 60px; object-fit: contain; }
 
-.logo-icon {
-    width: 65px;
-    height: 65px;
-    object-fit: contain;
-    display: block;
-    flex-shrink: 0;
-    /* mix-blend-mode: multiply; -> Utilise ceci si ton logo a un cadre blanc */
-}
-
-.logo-text-wrap {
-    display: flex;
-    flex-direction: column;
-    line-height: 1;
-}
-
-.logo-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 45px;
-    letter-spacing: 2px;
-    color: var(--brand-green); /* "TRIP" repasse en vert */
-    line-height: 0.9;
-}
-
-.logo-name span {
-    color: #333; /* "IA" reste en noir foncé */
-    text-transform: uppercase;
-}
+.logo-text-group { display: flex; flex-direction: column; }
+.logo-brand { font-family: 'Bebas Neue', sans-serif; font-size: 44px; line-height: 0.8; }
+.brand-green { color: var(--brand-olive); }
+.brand-dark { color: #333; }
 
 .logo-tagline {
-    font-size: 13px;
-    color: var(--brand-green); /* Slogan repasse en vert */
+    font-size: 12px;
+    color: var(--brand-olive);
     font-style: italic;
-    margin-top: 5px;
     font-weight: 600;
+    margin-top: 5px;
 }
 
-/* ── NAVIGATION (ÉCRITURES EN VERT) ── */
-.nav {
-    display: flex;
-    gap: 30px;
-    align-items: center;
+.nav { display: flex; gap: 30px; }
+.nav a { 
+    font-family: 'Bebas Neue', sans-serif; 
+    font-size: 24px; 
+    color: var(--brand-olive); 
+    text-decoration: none; 
 }
 
-.nav a {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
-    letter-spacing: 1.5px;
-    color: var(--brand-green); /* Liens repassent en vert */
-    text-decoration: none;
-    transition: opacity 0.2s;
-}
-
-.nav a:hover { 
-    opacity: 0.7; 
-}
-
-/* ── HERO & GRILLE D'IMAGES ── */
+/* ── HERO ── */
 .hero {
     position: relative;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 125px); 
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -122,229 +81,149 @@ body {
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: repeat(3, 1fr);
     gap: 4px;
-    z-index: 0;
 }
 
-.hero-grid div {
-    background-size: cover;
-    background-position: center;
-}
+.hero-grid div { background-size: cover; background-position: center; }
 
-/* ── Tes images locales dans le dossier assets ── */
-.p1  { background-image: url('assets/photo1.jpg'); }
-.p2  { background-image: url('assets/photo2.jpg'); }
-.p3  { background-image: url('assets/photo3.jpg'); }
-.p4  { background-image: url('assets/photo4.jpg'); }
-.p5  { background-image: url('assets/photo5.jpg'); }
-.p6  { background-image: url('assets/photo6.jpg'); }
-.p7  { background-image: url('assets/photo7.jpg'); }
-.p8  { background-image: url('assets/photo8.jpg'); }
-.p9  { background-image: url('assets/photo9.jpg'); }
-.p10 { background-image: url('assets/photo10.jpg'); }
-.p11 { background-image: url('assets/photo11.jpg'); }
-.p12 { background-image: url('assets/photo12.jpg'); }
-.p13 { background-image: url('assets/photo13.jpg'); }
-.p14 { background-image: url('assets/photo14.jpg'); }
-.p15 { background-image: url('assets/photo15.jpg'); }
+/* Tes photos assets */
+.p1  { background-image: url('./assets/photo1.jpg'); }
+.p2  { background-image: url('./assets/photo2.jpg'); }
+.p3  { background-image: url('./assets/photo3.jpg'); }
+.p4  { background-image: url('./assets/photo4.jpg'); }
+.p5  { background-image: url('./assets/photo5.jpg'); }
+.p6  { background-image: url('./assets/photo6.jpg'); }
+.p7  { background-image: url('./assets/photo7.jpg'); }
+.p8  { background-image: url('./assets/photo8.jpg'); }
+.p9  { background-image: url('./assets/photo9.jpg'); }
+.p10 { background-image: url('./assets/photo10.jpg'); }
+.p11 { background-image: url('./assets/photo11.jpg'); }
+.p12 { background-image: url('./assets/photo12.jpg'); }
+.p13 { background-image: url('./assets/photo13.jpg'); }
+.p14 { background-image: url('./assets/photo14.jpg'); }
+.p15 { background-image: url('./assets/photo15.jpg'); }
 
-/* ── BARRE DE RECHERCHE ── */
+/* ── RECHERCHE : FIX TEXTE NOIR ── */
 .search-wrap {
     position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
+    z-index: 5;
+    width: 750px;
 }
 
 .search-wrap input {
-    width: 720px;
-    max-width: 90vw;
+    width: 100%;
     padding: 22px 35px;
     border-radius: 60px;
     border: 3px solid #000;
     font-size: 26px;
     font-family: 'Nunito', sans-serif;
     font-weight: bold;
-    background: #fff;
+    background: #fff !important;
+    color: #000 !important; /* Texte bien noir */
     box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     outline: none;
 }
 
 .search-button {
     position: absolute;
-    right: 25px;
-    background: none;
-    border: none;
-    font-size: 30px;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; font-size: 30px; cursor: pointer;
+}
+
+/* ── RÉSULTATS ── */
+.result-page {
+    background: #f4f4f4;
+    padding: 60px 40px;
+    min-height: 100vh;
+}
+
+.prompt-bubble {
+    display: flex;
+    align-items: center;
+    background: var(--brand-olive);
+    border: 3px solid #000;
+    border-radius: 60px;
+    padding: 16px 30px;
+    max-width: 900px;
+    margin: 0 auto 50px;
+    color: #000;
+}
+
+.bubble-content {
+    flex-grow: 1;
+    text-align: center;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+}
+
+.bubble-icon { font-size: 22px; }
+
+.itinerary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 40px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.day-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.day-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 30px; }
+
+.mod-btn {
+    background: #efefef;
+    border: 1px solid #ccc;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 11px;
     cursor: pointer;
-    color: #333;
 }
 
-.search-button:hover { background: var(--gold-dark); }
-.search-button:disabled { opacity: 0.6; cursor: not-allowed; }
+.activities { list-style: none; margin-bottom: 25px; }
+.activities li { 
+    font-size: 15px; 
+    margin-bottom: 10px; 
+    display: flex; 
+    align-items: flex-start;
+}
+.activities li::before { content: "•"; margin-right: 12px; font-weight: bold; }
 
-/* ── LOADING ── */
-.loading-state {
-  text-align: center;
-  padding: 40px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2a2a00;
-  font-style: italic;
+/* ── PHOTOS SUGGESTIONS FIXÉES ── */
+.day-photos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
 }
 
-/* ── RESULT ── */
-.result {
-  padding: 48px 70px 80px;
+.photo-item { text-align: center; }
+.photo-item img { 
+    width: 100%; 
+    height: 110px; 
+    object-fit: cover; 
+    border: 2px solid #000; 
+    border-radius: 12px;
 }
-
-/* ── PROMPT BUBBLE ── */
-.prompt {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  border: 2.5px solid #9a9a20;
-  border-radius: 28px;
-  padding: 16px 24px;
-  width: 700px;
-  max-width: 95%;
-  margin-bottom: 48px;
-  background: #d2d260;
-  color: #1a1a00;
-  font-size: 13px;
-  line-height: 1.6;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-.prompt-q { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-.prompt-mic { font-size: 18px; flex-shrink: 0; margin-top: 1px; margin-left: auto; padding-left: 12px; }
-
-
-/* ── ITINERARY ── */
-.itinerary {
-  display: flex;
-  flex-direction: column;
-  gap: 48px;
-}
-
-/* ── DAY BLOCK ── */
-.day-block {
-  background: rgba(255,255,255,0.15);
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1.5px solid rgba(180,177,0,0.3);
-}
-
-/* ── DAY IMAGE ── */
-.day-image {
-  width: 100%;
-  height: 260px;
-  object-fit: cover;
-  display: block;
-}
-
-/* ── DAY CONTENT ── */
-.day-content {
-  padding: 24px 28px 28px;
-}
-
-.day-block h3 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 26px;
-  letter-spacing: 2px;
-  color: #1a1a00;
-  margin: 20px 28px 8px;
-}
-
-/* ── BUDGET BADGE ── */
-.budget-badge {
-  display: inline-block;
-  background: var(--gold);
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 14px;
-  border-radius: 20px;
-  margin: 0 28px 16px;
-  letter-spacing: 0.5px;
-}
-
-/* ── ACTIVITES ── */
-.day-block ul {
-  list-style: disc;
-  margin: 0 28px 24px 52px;
-}
-
-.day-block ul li {
-  font-size: 14px;
-  color: #2a2a00;
-  line-height: 1.8;
-  font-weight: 600;
-}
-
-/* ── HOTELS ── */
-.hotels {
-  display: flex;
-  gap: 16px;
-  padding: 0 28px 28px;
-  flex-wrap: wrap;
-}
-
-.hotels-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
-  letter-spacing: 1.5px;
-  color: #1a1a00;
-  margin: 0 28px 12px;
-}
-
-.hotel-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  width: 200px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-  flex-shrink: 0;
-}
-
-.hotel-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-}
-
-.hotel-img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  display: block;
-}
-
-.hotel-info {
-  padding: 10px 12px;
-}
-
-.hotel-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1a1a00;
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.hotel-price {
-  font-size: 12px;
-  color: var(--gold-dark);
-  font-weight: 700;
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 768px) {
-  .header { padding: 14px 20px; flex-wrap: wrap; gap: 12px; }
-  .nav { gap: 20px; }
-  .result { padding: 30px 20px 50px; }
-  .hotels { gap: 12px; }
-  .hotel-card { width: 160px; }
-  .day-image { height: 180px; }
+.photo-item span { 
+    display: block; 
+    font-size: 10px; 
+    font-weight: 800; 
+    margin-top: 6px; 
+    text-transform: uppercase;
 }
