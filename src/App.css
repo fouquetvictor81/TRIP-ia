@@ -108,7 +108,7 @@ body {
 .hero {
     position: relative;
     width: 100%;
-    height: calc(100vh - 120px);
+    height: 100vh;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -156,41 +156,27 @@ body {
 }
 
 .search-wrap input {
-  width: 660px;
-  max-width: 88vw;
-  padding: 17px 64px 17px 32px;
-  border-radius: 50px;
-  border: 2.5px solid #111;
-  font-size: 19px;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700;
-  background: rgba(255,255,255,0.94);
-  color: #222;
-  outline: none;
-  box-shadow: 0 6px 28px rgba(0,0,0,0.28);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.search-wrap input::placeholder { color: #666; font-weight: 600; }
-.search-wrap input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 6px 32px rgba(180,177,0,0.4);
+    width: 720px;
+    max-width: 90vw;
+    padding: 22px 35px;
+    border-radius: 60px;
+    border: 3px solid #000;
+    font-size: 26px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: bold;
+    background: #fff;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    outline: none;
 }
 
 .search-button {
-  position: absolute;
-  right: 8px;
-  background: var(--gold);
-  border: none;
-  border-radius: 50px;
-  width: 46px;
-  height: 46px;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
+    position: absolute;
+    right: 25px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: #333;
 }
 
 .search-button:hover { background: var(--gold-dark); }
@@ -229,9 +215,9 @@ body {
   font-weight: 700;
   letter-spacing: 0.3px;
 }
-
 .prompt-q { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
 .prompt-mic { font-size: 18px; flex-shrink: 0; margin-top: 1px; margin-left: auto; padding-left: 12px; }
+
 
 /* ── ITINERARY ── */
 .itinerary {

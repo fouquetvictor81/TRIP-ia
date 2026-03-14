@@ -4,13 +4,12 @@ import { useState } from "react";
 import logoFox from "./assets/logo-fox.png"; 
 
 function App() {
-  const [trip, setTrip] = useState("");
-  const [itinerary, setItinerary] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [trip, setTrip] = useState(""); 
+  const [itinerary, setItinerary] = useState(null); 
+  const [loading, setLoading] = useState(false); 
 
   const generateTrip = async () => {
     if (!trip) return;
-
     setLoading(true);
     setItinerary(null);
 
@@ -18,9 +17,9 @@ function App() {
       const response = await fetch("http://localhost:3001/generate", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ trip: trip })
+        body: JSON.stringify({ trip: trip }),
       });
 
       if (!response.ok) {
@@ -28,54 +27,29 @@ function App() {
       }
 
       const data = await response.json();
-      setItinerary(data);
-
+      setItinerary(data); 
     } catch (error) {
       console.error("Erreur lors de la génération :", error);
-      alert("Erreur : vérifie que ton backend tourne sur le port 3001.");
+      alert("Erreur : Assure-toi que ton serveur backend est lancé sur le port 3001.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
-
-      {/* TOPBAR */}
-      <div className="topbar">TRIPia76@outlook.fr</div>
+    <div className="App">
+      {/* ── 1. LA PETITE BANDE VERTE TOUT EN HAUT ── */}
+      <div className="topbar">tripia26@outlook.fr</div>
 
       {/* ── 2. LE HEADER (FOND BLANC, ÉCRITURES VERTES) ── */}
       <header className="header">
         <div className="logo">
-
-          <svg
-            className="logo-icon"
-            viewBox="0 0 60 60"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <ellipse cx="30" cy="38" rx="22" ry="13" fill="#e8e830" opacity="0.3"/>
-            <circle cx="30" cy="26" r="18" fill="#f5f5dc" stroke="#b4b100" strokeWidth="2"/>
-            <ellipse cx="30" cy="26" rx="10" ry="18" stroke="#b4b100" strokeWidth="1.5" fill="none"/>
-            <line x1="12" y1="26" x2="48" y2="26" stroke="#b4b100" strokeWidth="1.5"/>
-            <line x1="30" y1="8" x2="30" y2="44" stroke="#b4b100" strokeWidth="1.5"/>
-            <circle cx="30" cy="26" r="3" fill="#b4b100"/>
-            <ellipse cx="14" cy="40" rx="5" ry="3" fill="#b4b100" transform="rotate(-20 14 40)"/>
-            <ellipse cx="46" cy="40" rx="5" ry="3" fill="#b4b100" transform="rotate(20 46 40)"/>
-            <ellipse cx="10" cy="32" rx="5" ry="3" fill="#b4b100" transform="rotate(-30 10 32)"/>
-            <ellipse cx="50" cy="32" rx="5" ry="3" fill="#b4b100" transform="rotate(30 50 32)"/>
-            <ellipse cx="30" cy="50" rx="5" ry="2.5" fill="#b4b100"/>
-          </svg>
-
+          <img src={logoFox} alt="Logo Tripia" className="logo-icon" />
           <div className="logo-text-wrap">
-            <div className="logo-name">
-              TRIP<span>ia</span>
-            </div>
-            <div className="logo-tagline">
-              Votre voyage, pensé selon vos envies.
-            </div>
+            {/* Le span permet de mettre "IA" en noir via le CSS */}
+            <div className="logo-name">TRIP<span>IA</span></div>
+            <div className="logo-tagline">Votre voyage, pensé selon vos envies.</div>
           </div>
-
         </div>
 
         <nav className="nav">
@@ -84,12 +58,10 @@ function App() {
           <a href="#">RÉSERVATION</a>
           <a href="#">SUGGESTION</a>
         </nav>
-
       </header>
 
       {/* ── 3. HERO (GRILLE + RECHERCHE) ── */}
       <section className="hero">
-
         <div className="hero-grid">
           {[...Array(15)].map((_, i) => (
             <div key={i} className={`p${i + 1}`}></div>
@@ -97,7 +69,6 @@ function App() {
         </div>
 
         <div className="search-wrap">
-
           <input
             type="text"
             placeholder="Écrivez votre voyage..."
@@ -106,17 +77,12 @@ function App() {
             onKeyDown={(e) => e.key === "Enter" && generateTrip()}
           />
 
-          <button
-            className="search-button"
-            onClick={generateTrip}
-            disabled={loading}
-          >
+          <button className="search-button" onClick={generateTrip} disabled={loading}>
             {loading ? "..." : "🔍"}
           </button>
-
         </div>
-
       </section>
+
 
       {/* ── 4. RÉSULTATS DE L'IA ── */}
       <section className="result">
