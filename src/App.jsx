@@ -198,16 +198,20 @@ function App() {
 
                   {/* TRAJET INTERACTIF ENTRE LES JOURS */}
                   {item.travel && (
-                    <div className="travel-arrow">
-                      <div className="travel-line"></div>
-                      <div className="travel-info">
-          🚗                {item.travel.from || "Départ"} → {item.travel.to || "Arrivée"} 
-                                &nbsp;|&nbsp;
-                        ⏱ {item.travel.duration_h || item.travel.duration || item.travel.temps || "?"} de trajet
-                      </div>
-                      <div className="travel-line"></div>
-                  </div>
-                )}
+                  <div className="travel-arrow">
+                    <div className="travel-line"></div>
+
+                    <div className="travel-info">
+      🚗              {item.travel.from} → {item.travel.to}
+                      &nbsp;|&nbsp;
+      ⏱               {item.travel.duration}
+                        &nbsp;|&nbsp;
+      📍             {item.travel.distance_km} km
+                    </div>
+
+                  <div className="travel-line"></div>
+                </div>
+              )}
 
                 </div>
               ))}

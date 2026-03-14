@@ -182,29 +182,41 @@ RÈGLES IMPORTANTES :
        CALCUL DES TRAJETS
     ----------------------------- */
 
-    console.log("Calcul des trajets...");
+   console.log("Calcul des trajets...");
 
-    for (let i = 0; i < itinerary.days.length - 1; i++) {
+  for (let i = 0; i < itinerary.days.length - 1; i++) {
 
-      const currentCity = itinerary.days[i].title;
-      const nextCity = itinerary.days[i + 1].title;
+    const currentCity = itinerary.days[i].title;
+    const nextCity = itinerary.days[i + 1].title;
 
-      console.log(currentCity, "→", nextCity);
+    console.log(currentCity, "→", nextCity);
 
-      const startCoords = await geocodeCity(currentCity);
-      const endCoords = await geocodeCity(nextCity);
+  const startCoords = await geocodeCity(currentCity);
+  const endCoords = await geocodeCity(nextCity);
 
-      const route = await getRoute(startCoords, endCoords);
+  const route = await getRoute(startCoords, endCoords);
 
-      itinerary.days[i].travel = {
-        from: currentCity,
-        to: nextCity,
-        distance_km: (route.distance / 1000).toFixed(0),
-        duration_h: (route.duration / 3600).toFixed(1)
-      };
+  const totalMinutes = Math.round(route.duration / 60);
 
-    }
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
 
+  let formattedDuration;
+
+  if (hours > 0) {
+    formattedDuration = `${hours}h ${minutes}min`;
+  } else {
+    formattedDuration = `${minutes} min`;
+  }
+
+  itinerary.days[i].travel = {
+    from: currentCity,
+    to: nextCity,
+    distance_km: (route.distance / 1000).toFixed(0),
+    duration: formattedDuration
+  };
+
+  }
     console.log("Résultat final :", JSON.stringify(itinerary, null, 2));
 
     res.json(itinerary);
