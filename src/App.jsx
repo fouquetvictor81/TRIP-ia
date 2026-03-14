@@ -1,5 +1,7 @@
 import "./App.css";
 import { useState } from "react";
+// Assure-toi que ton logo est bien dans src/assets/logo-fox.png
+import logoFox from "./assets/logo-fox.png"; 
 
 function App() {
   const [trip, setTrip] = useState("");
@@ -42,7 +44,7 @@ function App() {
       {/* TOPBAR */}
       <div className="topbar">TRIPia76@outlook.fr</div>
 
-      {/* HEADER */}
+      {/* ── 2. LE HEADER (FOND BLANC, ÉCRITURES VERTES) ── */}
       <header className="header">
         <div className="logo">
 
@@ -77,14 +79,15 @@ function App() {
         </div>
 
         <nav className="nav">
-          <a href="#">Album</a>
-          <a href="#">Planning</a>
-          <a href="#">Réservation</a>
+          <a href="#">ALBUM</a>
+          <a href="#">PLANNING</a>
+          <a href="#">RÉSERVATION</a>
+          <a href="#">SUGGESTION</a>
         </nav>
 
       </header>
 
-      {/* HERO */}
+      {/* ── 3. HERO (GRILLE + RECHERCHE) ── */}
       <section className="hero">
 
         <div className="hero-grid">
@@ -93,13 +96,11 @@ function App() {
           ))}
         </div>
 
-        <div className="hero-overlay"></div>
-
         <div className="search-wrap">
 
           <input
             type="text"
-            placeholder="Écrivez votre voyage (ex: 3 jours à Rome)..."
+            placeholder="Écrivez votre voyage..."
             value={trip}
             onChange={(e) => setTrip(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && generateTrip()}
@@ -117,7 +118,7 @@ function App() {
 
       </section>
 
-      {/* RESULT */}
+      {/* ── 4. RÉSULTATS DE L'IA ── */}
       <section className="result">
 
         {loading && (
@@ -138,8 +139,6 @@ function App() {
 
               {itinerary.days.map((item, index) => (
                 <div className="day-block" key={index}>
-
-                  {/* IMAGE */}
                   {item.image_url && (
                     <img
                       src={item.image_url}

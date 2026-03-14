@@ -1,8 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const Groq = require("groq-sdk");
-require("dotenv").config();
-
+const path = require("path");
+require("dotenv").config(); //
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -137,7 +137,6 @@ STRUCTURE JSON STRICTE :
 
 
     res.json(itinerary);
-
   } catch (error) {
 
     console.error("Erreur détaillée :", error);
