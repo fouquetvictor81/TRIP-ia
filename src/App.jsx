@@ -11,6 +11,7 @@ function App() {
   const generateTrip = async () => {
     if (!trip) return;
     setLoading(true);
+    setItinerary(null); // On réinitialise pour relancer les animations
     try {
       const response = await fetch("http://localhost:3001/generate", {
         method: "POST",
@@ -20,26 +21,57 @@ function App() {
       const data = await response.json();
       setItinerary(data); 
     } catch (error) {
-      console.error("Erreur :", error);
+      console.error("Erreur serveur:", error);
+      alert("Erreur : vérifie que le backend tourne sur le port 3001.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Gestion des animations au scroll (Intersection Observer)
   useEffect(() => {
-    if (itinerary && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: "smooth" });
+    if (itinerary) {
+      const timer = setTimeout(() => {
+        if (resultRef.current) {
+          resultRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+              } else {
+                entry.target.classList.remove("visible");
+              }
+            });
+          },
+          { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+        );
+
+        // On cible les cartes pour l'animation
+        const cards = document.querySelectorAll(".day-card-white");
+        cards.forEach((card) => observer.observe(card));
+
+        return () => observer.disconnect();
+      }, 150);
+      return () => clearTimeout(timer);
     }
   }, [itinerary]);
 
+  const handleModify = () => {
+    setItinerary(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="App">
-      {/* ── TOPBAR AVEC MAIL EN BLANC ── */}
+      {/* TOPBAR */}
       <div className="topbar">
         <span className="mail-text">tripia26@outlook.fr</span>
       </div>
 
-      {/* ── HEADER STYLE PHOTO 3 ── */}
+      {/* HEADER */}
       <header className="header">
         <div className="logo-section">
           <img src={logoFox} alt="Logo" className="logo-icon" />
@@ -58,7 +90,7 @@ function App() {
         </nav>
       </header>
 
-      {/* ── SECTION ACCUEIL ── */}
+      {/* HERO SECTION */}
       <section className="hero">
         <div className="hero-grid">
           {[...Array(15)].map((_, i) => (
@@ -73,16 +105,18 @@ function App() {
             onChange={(e) => setTrip(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && generateTrip()}
           />
-          <button className="search-button" onClick={generateTrip}>
-            {loading ? "..." : "🔍"}
+          <button className="search-button" onClick={generateTrip} disabled={loading}>
+            {loading ? "⏳" : "🔍"}
           </button>
         </div>
       </section>
 
-      {/* ── SECTION RÉSULTATS ── */}
+      {/* RÉSULTATS */}
       {(itinerary || loading) && (
-        <section className="result-page" ref={resultRef}>
-          <div className="prompt-bubble">
+        <section className="result-page-final" ref={resultRef}>
+          
+          {/* BULLE DE RAPPEL DE LA RECHERCHE */}
+          <div className="prompt-bubble-final">
             <span className="bubble-icon">🔍</span>
             <div className="bubble-content">
               {loading ? "GÉNÉRATION EN COURS..." : trip.toUpperCase()}
@@ -90,35 +124,91 @@ function App() {
             <span className="bubble-icon">🎤</span>
           </div>
 
+          {loading && (
+            <div className="loading-state">
+              ✈️ L'intelligence artificielle prépare votre itinéraire...
+            </div>
+          )}
+
           {itinerary && (
-            <div className="itinerary-grid">
+            <div className="itinerary-column" key={JSON.stringify(itinerary)}>
               {itinerary.days.map((item, index) => (
-                <div className="day-card" key={index}>
-                  <div className="day-header">
-                    <h2>Jour {item.day} — {item.title}</h2>
-                    <button className="mod-btn" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
-                      MODIFIER
-                    </button>
+                <div key={index} className="day-wrapper">
+                  
+                  {/* CARTE BLANCHE DU JOUR */}
+                  <div className="day-card-white">
+                    
+                    {/* IMAGE PRINCIPALE DU JOUR */}
+                    {item.image_url && (
+                      <img src={item.image_url} alt={item.title} className="day-image-main" />
+                    )}
+
+                    <div className="day-body-content">
+                      
+                      <div className="day-header-flex">
+                        <h2>Jour {item.day} — {item.title}</h2>
+                        <div className="header-right">
+                            {item.estimated_budget && (
+                              <span className="budget-tag">💰 {item.estimated_budget}</span>
+                            )}
+                            <button className="mod-btn-gray" onClick={handleModify}>MODIFIER</button>
+                        </div>
+                      </div>
+
+                      {item.description && <p className="day-desc-long">{item.description}</p>}
+                      
+                      <div className="content-split">
+                          <div className="activities-part">
+                              <h3>Activités recommandées :</h3>
+                              <ul className="activity-list-final">
+                                {item.activities.map((act, i) => (
+                                  <li key={i}>{act}</li>
+                                ))}
+                              </ul>
+                          </div>
+
+                          {item.pro_tip && (
+                              <div className="expert-tip">
+                                  <strong>💡 CONSEIL D'EXPERT</strong>
+                                  <p>{item.pro_tip}</p>
+                              </div>
+                          )}
+                      </div>
+
+                      {/* SECTION SUGGESTIONS HÔTELS / RESTOS */}
+                      {item.hotels && item.hotels.length > 0 && (
+                        <div className="suggestion-section">
+                          <h3 className="suggestion-title">🏨 Suggestions de séjour</h3>
+                          <div className="suggestion-row">
+                            {item.hotels.map((hotel, i) => (
+                              <a key={i} href={hotel.link} target="_blank" rel="noreferrer" className="hotel-card">
+                                <img src={hotel.image} alt={hotel.name} className="hotel-img" />
+                                <div className="hotel-info">
+                                  <div className="hotel-label">Hébergement</div>
+                                  <div className="hotel-name">{hotel.name}</div>
+                                  <div className="hotel-price">{hotel.price}</div>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <ul className="activities">
-                    {item.activities.map((act, i) => (
-                      <li key={i}>{act}</li>
-                    ))}
-                  </ul>
-                  <div className="day-photos">
-                    <div className="photo-item">
-                      <img src={`https://loremflickr.com/400/300/hotel,resort?lock=${index}`} alt="H" />
-                      <span>HÔTEL</span>
-                    </div>
-                    <div className="photo-item">
-                      <img src={`https://loremflickr.com/400/300/landmark,architecture?lock=${index + 10}`} alt="A" />
-                      <span>ACTIVITÉ</span>
-                    </div>
-                    <div className="photo-item">
-                      <img src={`https://loremflickr.com/400/300/food,dish?lock=${index + 20}`} alt="R" />
-                      <span>RESTAURATION</span>
-                    </div>
+
+                  {/* TRAJET INTERACTIF ENTRE LES JOURS */}
+                  {item.travel && (
+                    <div className="travel-arrow">
+                      <div className="travel-line"></div>
+                      <div className="travel-info">
+          🚗                {item.travel.from || "Départ"} → {item.travel.to || "Arrivée"} 
+                                &nbsp;|&nbsp;
+                        ⏱ {item.travel.duration_h || item.travel.duration || item.travel.temps || "?"} de trajet
+                      </div>
+                      <div className="travel-line"></div>
                   </div>
+                )}
+
                 </div>
               ))}
             </div>
