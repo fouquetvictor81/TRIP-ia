@@ -146,14 +146,106 @@ function TransportIcon({ type, size = 20 }) {
 }
 
 
+/* ── Questionnaire constants ──────────────────────────── */
+
+const STYLE_OPTIONS = [
+  { value: "culture",   label: "Culture & Histoire" },
+  { value: "nature",    label: "Nature & Randonnée" },
+  { value: "plage",     label: "Plage & Soleil" },
+  { value: "gastro",    label: "Gastronomie" },
+  { value: "nightlife", label: "Vie nocturne" },
+  { value: "shopping",  label: "Shopping" },
+  { value: "aventure",  label: "Sport & Aventure" },
+  { value: "bienetre",  label: "Bien-être & Spa" },
+];
+
+const FOOD_OPTIONS = [
+  { value: "vegetarien", label: "Végétarien" },
+  { value: "vegan",      label: "Végétalien" },
+  { value: "halal",      label: "Halal" },
+  { value: "casher",     label: "Casher" },
+  { value: "sansgluten", label: "Sans gluten" },
+];
+
+const STYLE_LABELS = Object.fromEntries(STYLE_OPTIONS.map(o => [o.value, o.label]));
+
+const DEFAULT_ANSWERS = {
+  query: "", destination: "", duration: "", budget: "", dates: "",
+  travelers: "1", travelerType: "seul", hasChildren: false,
+  style: [], accommodation: "flexible", pace: "equilibre",
+  food: [], notes: ""
+};
+
+function extractFromQuery(q) {
+  const lower = q.toLowerCase();
+  let duration = "";
+  const dm = lower.match(/(\d+)\s*jours?/);
+  const wm = lower.match(/(\d+)\s*semaines?/);
+  if (dm) duration = dm[1] + " jours";
+  else if (wm) duration = (parseInt(wm[1]) * 7) + " jours";
+  else if (/week[\s-]?end/.test(lower)) duration = "2 jours";
+
+  let budget = "";
+  const bm = lower.match(/(\d[\d ]*)\s*[€$]/) || lower.match(/(\d[\d ]*)\s*euro/);
+  if (bm) budget = bm[1].replace(/\s/g, "") + "€";
+
+  let travelers = "1", travelerType = "seul";
+  const nm = lower.match(/(\d+)\s*(personnes?|voyageurs?)/);
+  if (nm) travelers = nm[1];
+  if (/\ben couple\b/.test(lower)) { travelerType = "couple"; if (!nm) travelers = "2"; }
+  else if (/\ben famille\b/.test(lower)) travelerType = "famille";
+  else if (/\bamis\b|\bgroupe\b/.test(lower)) travelerType = "amis";
+
+  return { duration, budget, travelers, travelerType };
+}
+
+function buildRichPrompt(a) {
+  const accoLabels = {
+    budget: "hébergement budget (hostel/auberge)",
+    standard: "hôtel standard 2-3 étoiles",
+    confort: "hôtel confort 3-4 étoiles",
+    luxe: "hôtel luxe 4-5 étoiles",
+    flexible: "hébergement flexible"
+  };
+  const paceLabels = {
+    tranquille: "rythme tranquille (2-3 activités/jour, beaucoup de temps libre)",
+    equilibre: "rythme équilibré (3-4 activités/jour)",
+    intense: "rythme intense (5+ activités/jour, maximum d'expériences)"
+  };
+  const typeLabels = { seul: "voyage solo", couple: "voyage en couple", famille: "voyage en famille", amis: "voyage entre amis" };
+
+  const parts = [];
+  if (a.query)       parts.push(`Demande initiale : "${a.query}"`);
+  if (a.destination) parts.push(`Destination : ${a.destination}`);
+  if (a.duration)    parts.push(`Durée : ${a.duration}`);
+  if (a.budget)      parts.push(`Budget total : ${a.budget}`);
+  if (a.dates)       parts.push(`Période : ${a.dates}`);
+  const nb = parseInt(a.travelers) || 1;
+  parts.push(`Voyageurs : ${nb} ${nb > 1 ? "personnes" : "personne"}, ${typeLabels[a.travelerType] || ""}${a.hasChildren ? ", avec enfants" : ""}`);
+  if (a.style?.length)        parts.push(`Style souhaité : ${a.style.map(s => STYLE_LABELS[s]).join(", ")}`);
+  if (a.accommodation && a.accommodation !== "flexible") parts.push(`Hébergement : ${accoLabels[a.accommodation]}`);
+  if (a.pace && a.pace !== "equilibre") parts.push(`Rythme : ${paceLabels[a.pace]}`);
+  if (a.food?.length)         parts.push(`Alimentation : ${a.food.join(", ")}`);
+  if (a.notes)                parts.push(`Demandes spéciales : ${a.notes}`);
+  return parts.join("\n");
+}
+
+
 function App() {
 
-  const [trip,         setTrip]         = useState("");
-  const [itinerary,    setItinerary]    = useState(null);
-  const [loading,      setLoading]      = useState(false);
+  const [trip,            setTrip]            = useState("");
+  const [step,            setStep]            = useState("search"); // "search"|"questionnaire"|"results"
+  const [answers,         setAnswers]         = useState(DEFAULT_ANSWERS);
+  const [itinerary,       setItinerary]       = useState(null);
+  const [loading,         setLoading]         = useState(false);
+  const [refineInput,     setRefineInput]     = useState("");
+  const [refining,        setRefining]        = useState(false);
+  const [refineSuccess,   setRefineSuccess]   = useState(false);
+  const [dayEditInputs,   setDayEditInputs]   = useState({}); // { index: string }
+  const [updatingDayIdx,  setUpdatingDayIdx]  = useState(null);
   const [checkedItems,    setCheckedItems]    = useState(new Set());
-  const [expandedHotels, setExpandedHotels] = useState(new Set());
-  const [lightbox,       setLightbox]       = useState(null); // { src, alt }
+  const [expandedHotels,  setExpandedHotels]  = useState(new Set());
+  const [lightbox,        setLightbox]        = useState(null);
 
   useEffect(() => {
     const close = (e) => { if (e.key === "Escape") setLightbox(null); };
@@ -233,18 +325,40 @@ function App() {
   };
 
 
-  /* ── APPEL BACKEND ── */
+  /* ── PASSER AU QUESTIONNAIRE ── */
+
+  const handleSearchSubmit = () => {
+    if (!trip.trim()) return;
+    const extracted = extractFromQuery(trip);
+    setAnswers({ ...DEFAULT_ANSWERS, ...extracted, query: trip });
+    setStep("questionnaire");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  /* ── TOGGLE PILL (multi-select) ── */
+  const togglePill = (field, value) => {
+    setAnswers(a => ({
+      ...a,
+      [field]: a[field].includes(value)
+        ? a[field].filter(v => v !== value)
+        : [...a[field], value]
+    }));
+  };
+
+  /* ── GÉNÉRATION DEPUIS QUESTIONNAIRE ── */
 
   const generateTrip = async () => {
-    if (!trip) return;
+    const richPrompt = buildRichPrompt(answers);
+    if (!richPrompt.trim()) return;
     setLoading(true);
     setItinerary(null);
+    setStep("results");
 
     try {
       const response = await fetch(`${API}/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trip })
+        body: JSON.stringify({ trip: richPrompt })
       });
       const data = await response.json();
       setItinerary(data);
@@ -254,6 +368,52 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  /* ── AFFINER LE VOYAGE EXISTANT ── */
+
+  const handleRefine = async () => {
+    if (!refineInput.trim() || !itinerary) return;
+    setRefining(true);
+    try {
+      const res = await fetch(`${API}/refine`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itinerary, instruction: refineInput })
+      });
+      const data = await res.json();
+      if (data.days) {
+        setItinerary(data);
+        setRefineInput("");
+        setRefineSuccess(true);
+        setTimeout(() => setRefineSuccess(false), 3000);
+      }
+    } catch { alert("Erreur lors de l'affinement."); }
+    finally { setRefining(false); }
+  };
+
+  /* ── METTRE À JOUR UN JOUR ── */
+
+  const handleUpdateDay = async (dayIndex, instruction) => {
+    if (!instruction.trim()) return;
+    setUpdatingDayIdx(dayIndex);
+    const tripContext = { destination: answers.destination, duration: answers.duration, budget: answers.budget, style: answers.style };
+    try {
+      const res = await fetch(`${API}/update-day`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ day: itinerary.days[dayIndex], instruction, tripContext })
+      });
+      const data = await res.json();
+      if (data.day) {
+        setItinerary(prev => ({
+          ...prev,
+          days: prev.days.map((d, i) => i === dayIndex ? data.day : d)
+        }));
+        setDayEditInputs(prev => ({ ...prev, [dayIndex]: "" }));
+      }
+    } catch { alert("Erreur lors de la mise à jour."); }
+    finally { setUpdatingDayIdx(null); }
   };
 
 
@@ -286,6 +446,7 @@ function App() {
 
   const handleModify = () => {
     setItinerary(null);
+    setStep("search");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -338,6 +499,7 @@ function App() {
 
 
       {/* HERO */}
+      {step === "search" && (
       <section className="hero">
 
         <div className="hero-grid">
@@ -352,9 +514,9 @@ function App() {
             placeholder="Décrivez votre voyage idéal..."
             value={trip}
             onChange={(e) => setTrip(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && generateTrip()}
+            onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit()}
           />
-          <button className="search-button" onClick={generateTrip} disabled={loading}>
+          <button className="search-button" onClick={handleSearchSubmit} disabled={loading}>
             {loading ? <span className="search-loading" /> : <IconSearch size={20} />}
           </button>
         </div>
@@ -366,10 +528,202 @@ function App() {
         </div>
 
       </section>
+      )}
+
+
+      {/* ── QUESTIONNAIRE ── */}
+      {step === "questionnaire" && (
+        <section className="questionnaire-page">
+
+          <div className="result-bg">
+            <div className="result-bg-grid">{[...Array(15)].map((_, i) => <div key={i} className={`p${i+1}`}></div>)}</div>
+            <div className="result-bg-overlay"></div>
+          </div>
+
+          <div className="questionnaire-wrap">
+
+            <div className="questionnaire-top">
+              <h1 className="questionnaire-title">Créez votre voyage parfait</h1>
+              <p className="questionnaire-subtitle">Plus vous êtes précis, plus votre voyage sera personnalisé</p>
+            </div>
+
+            {/* Demande initiale — toujours visible et modifiable */}
+            <div className="questionnaire-query-box">
+              <label className="qquery-label">Votre demande</label>
+              <textarea
+                className="qquery-input"
+                value={answers.query}
+                onChange={e => setAnswers(a => ({...a, query: e.target.value}))}
+                rows={2}
+                placeholder="Décrivez votre voyage..."
+              />
+            </div>
+
+            <div className="questionnaire-card">
+
+              {/* SECTION 1 — L'essentiel */}
+              <div className="q-section">
+                <h3 className="q-section-title">L'essentiel</h3>
+                <div className="q-grid-2">
+                  <div className="q-field">
+                    <label className="q-label">Destination(s)</label>
+                    <input className="q-input" type="text" value={answers.destination}
+                      onChange={e => setAnswers(a => ({...a, destination: e.target.value}))}
+                      placeholder="Maroc, Thaïlande, Italie..." />
+                  </div>
+                  <div className="q-field">
+                    <label className="q-label">Durée</label>
+                    <input className="q-input" type="text" value={answers.duration}
+                      onChange={e => setAnswers(a => ({...a, duration: e.target.value}))}
+                      placeholder="5 jours, 2 semaines..." />
+                  </div>
+                  <div className="q-field">
+                    <label className="q-label">Budget total</label>
+                    <input className="q-input" type="text" value={answers.budget}
+                      onChange={e => setAnswers(a => ({...a, budget: e.target.value}))}
+                      placeholder="800€, 2 000€..." />
+                  </div>
+                  <div className="q-field">
+                    <label className="q-label">Période / Dates</label>
+                    <input className="q-input" type="text" value={answers.dates}
+                      onChange={e => setAnswers(a => ({...a, dates: e.target.value}))}
+                      placeholder="Début juillet, flexible..." />
+                  </div>
+                </div>
+              </div>
+
+              <div className="q-divider" />
+
+              {/* SECTION 2 — Voyageurs */}
+              <div className="q-section">
+                <h3 className="q-section-title">Les voyageurs</h3>
+                <div className="q-travelers-row">
+                  <div className="q-field">
+                    <label className="q-label">Nombre</label>
+                    <div className="q-stepper">
+                      <button className="q-stepper-btn" onClick={() => setAnswers(a => ({...a, travelers: String(Math.max(1, parseInt(a.travelers)-1))}))}>−</button>
+                      <span className="q-stepper-val">{answers.travelers}</span>
+                      <button className="q-stepper-btn" onClick={() => setAnswers(a => ({...a, travelers: String(Math.min(20, parseInt(a.travelers)+1))}))}>+</button>
+                    </div>
+                  </div>
+                  <div className="q-field q-field-grow">
+                    <label className="q-label">Type de voyage</label>
+                    <div className="q-pills">
+                      {[["seul","Seul(e)"],["couple","En couple"],["famille","En famille"],["amis","Entre amis"]].map(([v,l]) => (
+                        <button key={v} className={`qpill ${answers.travelerType === v ? "active" : ""}`}
+                          onClick={() => setAnswers(a => ({...a, travelerType: v}))}>
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {answers.travelerType === "famille" && (
+                  <div className="q-toggle-row">
+                    <label className="q-label">Voyage avec des enfants ?</label>
+                    <button
+                      className={`q-toggle ${answers.hasChildren ? "active" : ""}`}
+                      onClick={() => setAnswers(a => ({...a, hasChildren: !a.hasChildren}))}>
+                      {answers.hasChildren ? "Oui" : "Non"}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="q-divider" />
+
+              {/* SECTION 3 — Style */}
+              <div className="q-section">
+                <h3 className="q-section-title">Style de voyage <span className="q-hint">Plusieurs choix possibles</span></h3>
+                <div className="q-pills q-pills-wrap">
+                  {STYLE_OPTIONS.map(({value, label}) => (
+                    <button key={value}
+                      className={`qpill ${answers.style.includes(value) ? "active" : ""}`}
+                      onClick={() => togglePill("style", value)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="q-divider" />
+
+              {/* SECTION 4 — Hébergement */}
+              <div className="q-section">
+                <h3 className="q-section-title">Hébergement</h3>
+                <div className="q-pills">
+                  {[["budget","Budget"],["standard","Standard ★★"],["confort","Confort ★★★"],["luxe","Luxe ★★★★★"],["flexible","Peu importe"]].map(([v,l]) => (
+                    <button key={v} className={`qpill ${answers.accommodation === v ? "active" : ""}`}
+                      onClick={() => setAnswers(a => ({...a, accommodation: v}))}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="q-divider" />
+
+              {/* SECTION 5 — Rythme */}
+              <div className="q-section">
+                <h3 className="q-section-title">Rythme du voyage</h3>
+                <div className="q-pills">
+                  {[["tranquille","Tranquille — beaucoup de temps libre"],["equilibre","Équilibré — 3-4 activités/jour"],["intense","Intense — maximum d'expériences"]].map(([v,l]) => (
+                    <button key={v} className={`qpill qpill-lg ${answers.pace === v ? "active" : ""}`}
+                      onClick={() => setAnswers(a => ({...a, pace: v}))}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="q-divider" />
+
+              {/* SECTION 6 — Alimentation */}
+              <div className="q-section">
+                <h3 className="q-section-title">Restrictions alimentaires <span className="q-hint">Optionnel</span></h3>
+                <div className="q-pills q-pills-wrap">
+                  {FOOD_OPTIONS.map(({value, label}) => (
+                    <button key={value}
+                      className={`qpill ${answers.food.includes(value) ? "active" : ""}`}
+                      onClick={() => togglePill("food", value)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="q-divider" />
+
+              {/* SECTION 7 — Notes */}
+              <div className="q-section">
+                <h3 className="q-section-title">Infos complémentaires <span className="q-hint">Optionnel</span></h3>
+                <textarea
+                  className="q-textarea"
+                  value={answers.notes}
+                  onChange={e => setAnswers(a => ({...a, notes: e.target.value}))}
+                  rows={3}
+                  placeholder="Activités incontournables, besoins spécifiques, anniversaire à fêter, mobilité réduite..."
+                />
+              </div>
+
+            </div>
+
+            {/* CTA */}
+            <button className="q-generate-btn" onClick={generateTrip} disabled={loading || !answers.query.trim()}>
+              {loading ? <span className="search-loading" /> : "Générer mon voyage →"}
+            </button>
+
+            <button className="q-back-btn" onClick={() => setStep("search")}>
+              ← Modifier ma recherche
+            </button>
+
+          </div>
+        </section>
+      )}
 
 
       {/* RESULTS */}
-      {(itinerary || loading) && (
+      {(itinerary || (loading && step === "results")) && (
 
         <section className="result-page-final" ref={resultRef}>
 
@@ -409,6 +763,40 @@ function App() {
           {itinerary && (
 
             <div className="itinerary-column">
+
+              {/* ── RÉSUMÉ + AFFINEMENT ── */}
+              <div className="animate-in refine-bar">
+
+                <div className="refine-summary">
+                  {answers.destination && <span className="refine-tag">{answers.destination}</span>}
+                  {answers.duration    && <span className="refine-tag">{answers.duration}</span>}
+                  {answers.budget      && <span className="refine-tag">{answers.budget}</span>}
+                  {parseInt(answers.travelers) > 1 && <span className="refine-tag">{answers.travelers} pers.</span>}
+                  {answers.style.slice(0,2).map(s => <span key={s} className="refine-tag">{STYLE_LABELS[s]}</span>)}
+                  <button className="refine-edit-btn" onClick={() => setStep("questionnaire")}>
+                    <IconEdit size={13} /> Modifier les critères
+                  </button>
+                </div>
+
+                <div className="refine-input-row">
+                  <input
+                    type="text"
+                    className="refine-input"
+                    placeholder="Ajoutez un souhait : activités sportives le soir, restaurant romantique jour 3..."
+                    value={refineInput}
+                    onChange={e => setRefineInput(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleRefine()}
+                  />
+                  <button className="refine-btn" onClick={handleRefine} disabled={!refineInput.trim() || refining}>
+                    {refining ? <span className="search-loading" /> : "Affiner"}
+                  </button>
+                </div>
+
+                {refineSuccess && (
+                  <div className="refine-success">Voyage mis à jour avec succès</div>
+                )}
+
+              </div>
 
 
               {/* ── VOLS ── */}
@@ -829,7 +1217,46 @@ function App() {
                         </div>
                       )}
 
+                      {/* PERSONNALISER CE JOUR */}
+                      <div className="day-personalize">
+                        {dayEditInputs[index] !== undefined ? (
+                          <div className="day-edit-row">
+                            <input
+                              type="text"
+                              className="day-edit-input"
+                              placeholder="Ex: ajouter une sortie en soirée, remplacer le dîner par..."
+                              value={dayEditInputs[index]}
+                              onChange={e => setDayEditInputs(p => ({...p, [index]: e.target.value}))}
+                              onKeyDown={e => e.key === "Enter" && handleUpdateDay(index, dayEditInputs[index])}
+                              autoFocus
+                            />
+                            <button className="day-edit-btn"
+                              onClick={() => handleUpdateDay(index, dayEditInputs[index])}
+                              disabled={updatingDayIdx === index || !dayEditInputs[index]?.trim()}>
+                              {updatingDayIdx === index ? <span className="search-loading" /> : "Mettre à jour"}
+                            </button>
+                            <button className="day-edit-cancel"
+                              onClick={() => setDayEditInputs(p => { const n={...p}; delete n[index]; return n; })}>
+                              Annuler
+                            </button>
+                          </div>
+                        ) : (
+                          <button className="day-personalize-btn"
+                            onClick={() => setDayEditInputs(p => ({...p, [index]: ""}))}>
+                            + Personnaliser ce jour
+                          </button>
+                        )}
+                      </div>
+
                     </div>
+
+                    {/* Overlay quand ce jour est en cours de mise à jour */}
+                    {updatingDayIdx === index && (
+                      <div className="day-updating-overlay">
+                        <div className="day-updating-spinner" />
+                        <p>Mise à jour en cours...</p>
+                      </div>
+                    )}
 
                   </div>
 

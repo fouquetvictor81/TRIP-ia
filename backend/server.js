@@ -605,11 +605,156 @@ IMPORTANT :
   } catch (error) {
 
     console.error("Erreur backend :", error);
+    res.status(500).json({ error: "Erreur génération voyage" });
 
-    res.status(500).json({
-      error: "Erreur génération voyage"
+  }
+
+});
+
+
+/* -----------------------------
+AFFINER UN VOYAGE EXISTANT
+----------------------------- */
+
+app.post("/refine", async (req, res) => {
+
+  const { itinerary, instruction } = req.body;
+  if (!itinerary || !instruction) return res.status(400).json({ error: "Données manquantes" });
+
+  try {
+
+    /* Version allégée pour économiser des tokens */
+    const light = {
+      trip: itinerary.trip,
+      days: itinerary.days.map(d => ({
+        day: d.day, title: d.title, description: d.description,
+        schedule: d.schedule?.map(s => ({ time: s.time, activity: s.activity, description: s.description, duration: s.duration, cost: s.cost })),
+        estimated_budget: d.estimated_budget, pro_tip: d.pro_tip
+      }))
+    };
+
+    const completion = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "system",
+          content: `Tu es un expert travel planner. Tu modifies un itinéraire existant selon l'instruction du client.
+RÈGLES STRICTES :
+- Modifie UNIQUEMENT les jours impactés par l'instruction
+- Conserve EXACTEMENT le contenu des jours non impactés
+- Marque chaque jour modifié avec "modified": true
+- Pour les nouvelles activités, inclus "image_search_term" en anglais
+- Réponds UNIQUEMENT en JSON valide avec la même structure`
+        },
+        {
+          role: "user",
+          content: `Instruction : "${instruction}"\n\nItinéraire :\n${JSON.stringify(light, null, 2)}`
+        }
+      ],
+      response_format: { type: "json_object" }
     });
 
+    let refined;
+    try { refined = JSON.parse(completion.choices[0].message.content); }
+    catch { return res.status(500).json({ error: "Erreur parsing" }); }
+
+    if (!refined.days) refined.days = itinerary.days;
+
+    /* Fusionner : préserver images/hôtels, ne fetch que les nouvelles activités */
+    refined.days = await Promise.all(refined.days.map(async (newDay, i) => {
+      const old = itinerary.days[i];
+      if (!old) return newDay;
+      if (!newDay.modified) return old; /* jour inchangé → retour original complet */
+
+      /* Jour modifié → fetch images des nouvelles activités uniquement */
+      const schedule = await Promise.all((newDay.schedule || []).map(async (slot) => {
+        const existing = old.schedule?.find(s => s.activity === slot.activity);
+        if (existing?.image_url) { slot.image_url = existing.image_url; return slot; }
+        try {
+          const q = slot.image_search_term || `${slot.activity} ${newDay.title}`;
+          const r = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=3&orientation=squarish&client_id=${UNSPLASH_ACCESS_KEY}`);
+          const d = await r.json();
+          const pick = (d.results || [])[Math.floor(Math.random() * Math.min((d.results||[]).length, 3))];
+          slot.image_url = pick?.urls?.small || null;
+        } catch { slot.image_url = null; }
+        return slot;
+      }));
+
+      return { ...newDay, schedule, image_url: old.image_url, hotels: old.hotels, travel: newDay.travel || old.travel };
+    }));
+
+    res.json(refined);
+
+  } catch (err) {
+    console.error("Erreur refine:", err);
+    res.status(500).json({ error: "Erreur lors de l'affinement" });
+  }
+
+});
+
+
+/* -----------------------------
+METTRE À JOUR UN JOUR SPÉCIFIQUE
+----------------------------- */
+
+app.post("/update-day", async (req, res) => {
+
+  const { day, instruction, tripContext } = req.body;
+  if (!day || !instruction) return res.status(400).json({ error: "Données manquantes" });
+
+  try {
+
+    const light = {
+      day: day.day, title: day.title, description: day.description,
+      schedule: day.schedule?.map(s => ({ time: s.time, activity: s.activity, description: s.description, duration: s.duration, cost: s.cost })),
+      estimated_budget: day.estimated_budget, pro_tip: day.pro_tip
+    };
+
+    const completion = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "system",
+          content: `Tu modifies UN SEUL jour d'itinéraire selon l'instruction. Garde la même structure JSON.
+Pour chaque activité ajoutée ou modifiée, inclus "image_search_term" en anglais.
+Réponds UNIQUEMENT en JSON valide représentant le jour modifié.`
+        },
+        {
+          role: "user",
+          content: `Instruction : "${instruction}"\nContexte : ${JSON.stringify(tripContext || {})}\n\nJour :\n${JSON.stringify(light, null, 2)}`
+        }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    let updated;
+    try { updated = JSON.parse(completion.choices[0].message.content); }
+    catch { return res.status(500).json({ error: "Erreur parsing" }); }
+
+    /* Fetch images pour les nouvelles activités */
+    const schedule = await Promise.all((updated.schedule || []).map(async (slot) => {
+      const old = day.schedule?.find(s => s.activity === slot.activity);
+      if (old?.image_url) { slot.image_url = old.image_url; return slot; }
+      try {
+        const q = slot.image_search_term || `${slot.activity} ${day.title}`;
+        const r = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=3&orientation=squarish&client_id=${UNSPLASH_ACCESS_KEY}`);
+        const d = await r.json();
+        const pick = (d.results || [])[Math.floor(Math.random() * Math.min((d.results||[]).length, 3))];
+        slot.image_url = pick?.urls?.small || null;
+      } catch { slot.image_url = null; }
+      return slot;
+    }));
+
+    updated.schedule  = schedule;
+    updated.image_url = day.image_url;
+    updated.hotels    = day.hotels;
+    updated.travel    = updated.travel || day.travel;
+
+    res.json({ day: updated });
+
+  } catch (err) {
+    console.error("Erreur update-day:", err);
+    res.status(500).json({ error: "Erreur mise à jour du jour" });
   }
 
 });

@@ -1698,3 +1698,558 @@ body {
   cursor: pointer;
   text-decoration: underline;
 }
+
+/* =============================================
+   QUESTIONNAIRE PAGE
+   ============================================= */
+
+.questionnaire-page {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 16px 60px;
+  overflow: hidden;
+}
+
+.questionnaire-page .result-bg-blur {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(18px) brightness(0.55);
+  transform: scale(1.08);
+}
+
+.questionnaire-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 740px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.questionnaire-card {
+  background: rgba(255,255,255,0.97);
+  border-radius: 20px;
+  padding: 36px 40px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+
+.questionnaire-card h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1.5px;
+  color: var(--brand-olive-dark);
+  margin: 0 0 4px 0;
+}
+
+.questionnaire-card .q-subtitle {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 24px 0;
+}
+
+.q-query-box {
+  background: #f7f7f0;
+  border: 1.5px solid #e0ddd0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #333;
+  width: 100%;
+  resize: vertical;
+  min-height: 56px;
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-bottom: 4px;
+}
+
+.q-query-box:focus {
+  outline: none;
+  border-color: var(--brand-olive-dark);
+}
+
+.q-divider {
+  height: 1px;
+  background: #ededea;
+  margin: 20px 0;
+}
+
+.q-section {
+  margin-bottom: 20px;
+}
+
+.q-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+.q-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.q-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.q-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+}
+
+.q-input {
+  border: 1.5px solid #e0ddd0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fafaf7;
+  color: #222;
+  transition: border 0.15s;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.q-input:focus {
+  outline: none;
+  border-color: var(--brand-olive-dark);
+}
+
+.q-textarea {
+  border: 1.5px solid #e0ddd0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fafaf7;
+  color: #222;
+  resize: vertical;
+  min-height: 72px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.q-textarea:focus {
+  outline: none;
+  border-color: var(--brand-olive-dark);
+}
+
+/* Travelers stepper */
+.q-travelers-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.q-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f3f3ee;
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+
+.q-stepper button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--brand-olive-dark);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.q-stepper button:hover { background: #333; }
+
+.q-stepper span {
+  font-size: 16px;
+  font-weight: 800;
+  min-width: 22px;
+  text-align: center;
+}
+
+/* Pills */
+.q-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qpill {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #d8d5c8;
+  background: #fafaf7;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.qpill:hover {
+  border-color: var(--brand-olive-dark);
+  color: var(--brand-olive-dark);
+}
+
+.qpill.active {
+  background: var(--brand-olive-dark);
+  border-color: var(--brand-olive-dark);
+  color: #fff;
+}
+
+/* Toggle pills (single select) */
+.q-toggle {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.q-toggle-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1.5px solid #d8d5c8;
+  background: #fafaf7;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.q-toggle-btn:hover {
+  border-color: var(--brand-olive-dark);
+  color: var(--brand-olive-dark);
+}
+
+.q-toggle-btn.active {
+  background: var(--brand-olive-dark);
+  border-color: var(--brand-olive-dark);
+  color: #fff;
+}
+
+/* Checkbox row */
+.q-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  user-select: none;
+}
+
+.q-checkbox-row input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brand-olive-dark);
+  cursor: pointer;
+}
+
+/* Generate & back buttons */
+.q-generate-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--brand-olive-dark);
+  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 8px;
+}
+
+.q-generate-btn:hover {
+  background: #333;
+  transform: translateY(-1px);
+}
+
+.q-generate-btn:active {
+  transform: translateY(0);
+}
+
+.q-back-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  transition: color 0.15s;
+}
+
+.q-back-btn:hover { color: #fff; }
+
+/* =============================================
+   REFINE BAR
+   ============================================= */
+
+.refine-bar {
+  background: rgba(255,255,255,0.95);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.refine-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.refine-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #aaa;
+  margin-right: 4px;
+}
+
+.refine-tag {
+  background: #f0efe8;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+}
+
+.refine-edit-btn {
+  background: none;
+  border: 1.5px solid #d0cec5;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #777;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.15s;
+}
+
+.refine-edit-btn:hover {
+  border-color: var(--brand-olive-dark);
+  color: var(--brand-olive-dark);
+}
+
+.refine-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.refine-input {
+  flex: 1;
+  border: 1.5px solid #e0ddd0;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fafaf7;
+  color: #222;
+}
+
+.refine-input:focus {
+  outline: none;
+  border-color: var(--brand-olive-dark);
+}
+
+.refine-btn {
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--brand-olive-dark);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.refine-btn:hover { background: #333; }
+.refine-btn:disabled { background: #bbb; cursor: default; }
+
+.refine-success {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5a8a4a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* =============================================
+   DAY PERSONALIZATION
+   ============================================= */
+
+.day-card-white {
+  position: relative;
+}
+
+.day-personalize {
+  margin-top: 16px;
+  border-top: 1px solid #ededea;
+  padding-top: 12px;
+}
+
+.day-personalize-btn {
+  background: none;
+  border: 1.5px dashed #c8c5b8;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #999;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.day-personalize-btn:hover {
+  border-color: var(--brand-olive-dark);
+  color: var(--brand-olive-dark);
+  background: #f7f7f0;
+}
+
+.day-edit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.day-edit-input {
+  border: 1.5px solid #e0ddd0;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fafaf7;
+  color: #222;
+  resize: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.day-edit-input:focus {
+  outline: none;
+  border-color: var(--brand-olive-dark);
+}
+
+.day-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.day-edit-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  background: var(--brand-olive-dark);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.day-edit-btn:hover { background: #333; }
+.day-edit-btn:disabled { background: #bbb; cursor: default; }
+
+.day-edit-cancel {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #d0cec5;
+  background: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.day-edit-cancel:hover {
+  border-color: #999;
+  color: #444;
+}
+
+/* Loading overlay on day card during update */
+.day-updating-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  gap: 12px;
+}
+
+.day-updating-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e0ddd0;
+  border-top-color: var(--brand-olive-dark);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.day-updating-overlay span {
+  font-size: 13px;
+  font-weight: 700;
+  color: #666;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
