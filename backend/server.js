@@ -138,37 +138,99 @@ app.get("/trips/mine", authMiddleware, async (req, res) => {
 
 
 /* -----------------------------
-HOTELS
+HOTELS — GOOGLE PLACES API
 ----------------------------- */
 
-function getHotels(city) {
+const PRICE_LABELS = ["Gratuit", "Budget", "Milieu de gamme", "Confort", "Luxe"];
 
+/* Suit le redirect Places Photo → renvoie l'URL CDN sans clé API */
+async function resolvePlacePhotoUrl(photoRef, key) {
+  const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${photoRef}&key=${key}`;
+  try {
+    const res = await fetch(url);
+    return res.url; // URL finale après redirect (lh3.googleusercontent.com)
+  } catch {
+    return null;
+  }
+}
+
+async function getHotelsFromPlaces(city) {
+
+  const key = process.env.GOOGLE_PLACES_API_KEY;
+
+  /* ─ Fallback si pas de clé ─ */
+  if (!key) return getHotelsFallback(city);
+
+  try {
+    const searchRes = await fetch(
+      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=hotels+in+${encodeURIComponent(city)}&type=lodging&language=fr&key=${key}`
+    );
+    const searchData = await searchRes.json();
+
+    if (!searchData.results?.length) return getHotelsFallback(city);
+
+    /* Prend les 3 meilleurs hôtels (triés par pertinence par Google) */
+    const top3 = searchData.results.slice(0, 3);
+
+    const hotels = await Promise.all(top3.map(async (place) => {
+
+      /* Photo réelle */
+      let image = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600";
+      if (place.photos?.[0]?.photo_reference) {
+        const resolved = await resolvePlacePhotoUrl(place.photos[0].photo_reference, key);
+        if (resolved) image = resolved;
+      }
+
+      /* Prix */
+      const price = place.price_level != null
+        ? PRICE_LABELS[place.price_level]
+        : "Prix non renseigné";
+
+      /* Lien Google Maps (affiche infos, avis, site officiel) */
+      const link = `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
+
+      return {
+        name:   place.name,
+        rating: place.rating ? `${place.rating} / 5` : null,
+        price,
+        image,
+        link
+      };
+
+    }));
+
+    return hotels;
+
+  } catch (err) {
+    console.error("Google Places error:", err.message);
+    return getHotelsFallback(city);
+  }
+
+}
+
+/* Fallback si Google Places indisponible */
+function getHotelsFallback(city) {
   const f = encodeURIComponent(city);
-
   return [
     {
-      name: `Booking.com`,
-      platform: "booking",
+      name: "Booking.com",
       price: "Voir les prix",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400",
+      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600",
       link: `https://www.booking.com/search.html?ss=${f}`
     },
     {
-      name: `Airbnb`,
-      platform: "airbnb",
+      name: "Airbnb",
       price: "Voir les prix",
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400",
+      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600",
       link: `https://www.airbnb.fr/s/${f}/homes`
     },
     {
-      name: `Hostelworld`,
-      platform: "hostelworld",
-      price: "Dès 15€/nuit",
-      image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400",
+      name: "Hostelworld",
+      price: "Budget",
+      image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600",
       link: `https://www.hostelworld.com/st/hostels/${f}`
     }
   ];
-
 }
 
 
@@ -466,7 +528,7 @@ IMPORTANT :
         })
       );
 
-      day.hotels = getHotels(day.title);
+      day.hotels = await getHotelsFromPlaces(day.title);
 
     }
 

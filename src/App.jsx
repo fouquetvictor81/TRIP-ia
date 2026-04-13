@@ -759,24 +759,34 @@ function App() {
                           <h3 className="section-heading">Où dormir</h3>
 
                           {/* Hôtel principal */}
-                          <a
-                            href={item.hotels[0].link}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="hotel-featured"
-                          >
+                          <div className="hotel-featured">
                             <img
                               src={item.hotels[0].image}
                               alt={item.hotels[0].name}
                               className="hotel-featured-img"
+                              onClick={() => setLightbox({ src: item.hotels[0].image, alt: item.hotels[0].name })}
                             />
                             <div className="hotel-featured-body">
                               <div className="hotel-featured-label">Hébergement recommandé</div>
                               <div className="hotel-featured-name">{item.hotels[0].name}</div>
+                              {item.hotels[0].rating && (
+                                <div className="hotel-featured-rating">
+                                  {"★".repeat(Math.round(parseFloat(item.hotels[0].rating)))}
+                                  <span className="hotel-rating-num">{item.hotels[0].rating}</span>
+                                </div>
+                              )}
                               <div className="hotel-featured-price">{item.hotels[0].price}</div>
-                              <span className="hotel-featured-cta">Voir les disponibilités →</span>
+                              <a
+                                href={item.hotels[0].link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="hotel-featured-cta"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Voir sur Google Maps →
+                              </a>
                             </div>
-                          </a>
+                          </div>
 
                           {/* Toggle alternatives */}
                           <button
@@ -792,24 +802,26 @@ function App() {
                           {expandedHotels.has(index) && (
                             <div className="hotel-alternatives">
                               {item.hotels.slice(1).map((hotel, i) => (
-                                <a
-                                  key={i}
-                                  href={hotel.link}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="hotel-alt-card"
-                                >
+                                <div key={i} className="hotel-alt-card">
                                   <img
                                     src={hotel.image}
                                     alt={hotel.name}
                                     className="hotel-alt-img"
+                                    onClick={() => setLightbox({ src: hotel.image, alt: hotel.name })}
                                   />
                                   <div className="hotel-alt-info">
                                     <div className="hotel-alt-name">{hotel.name}</div>
+                                    {hotel.rating && <div className="hotel-alt-rating">{"★".repeat(Math.round(parseFloat(hotel.rating)))} {hotel.rating}</div>}
                                     <div className="hotel-alt-price">{hotel.price}</div>
                                   </div>
-                                  <span className="hotel-alt-arrow">→</span>
-                                </a>
+                                  <a
+                                    href={hotel.link}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hotel-alt-link"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >→</a>
+                                </div>
                               ))}
                             </div>
                           )}
